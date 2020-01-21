@@ -1,0 +1,32 @@
+{
+  "name": "koa-test-task",
+  "version": "1.0.0",
+  "description": "Test application based on koa2",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oneassasin/koa-test-task.git"
+  },
+  "author": "Bednij Bohdan (bednij.bohdan@gmail.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oneassasin/koa-test-task/issues"
+  },
+  "homepage": "https://github.com/oneassasin/koa-test-task#readme",
+  "dependencies": {
+    "awilix": "4.2.3",
+    "awilix-koa": "4.0.0",
+    "bluebird": "3.7.2",
+    "debug": "4.1.1",
+    "koa": "2.11.0",
+    "koa-async-validator": "0.4.1",
+    "koa-conditional-get": "2.0.0",
+    "koa-etag": "3.0.0",
+    "mysql": "2.17.1",
+    "mysql-migrations": "1.0.6",
+    "promise-mysql": "4.1.1"
+  }
+}
