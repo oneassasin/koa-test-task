@@ -1,10 +1,10 @@
-import config from '../config';
-import * as mysql from 'promise-mysql';
-import * as debug from 'debug';
+const config = require('../config');
+const mysql = require('promise-mysql');
+const debug = require('debug');
 
-const log = debug('test:app');
+const log = debug('test:mysql');
 
-export default class MySqlService {
+class MySqlService {
     /**
      * @type {mysql.pool}
      * @private
@@ -26,6 +26,13 @@ export default class MySqlService {
      * @returns {Promise<mysql.connection>}
      */
     async getConnection() {
-        return this._pool.getConnection();
+        try {
+            return await this._pool.getConnection();
+        } catch (err) {
+            log('Error with getting connection from pool', err);
+            throw new Error('Database connection init error');
+        }
     }
 }
+
+module.exports = MySqlService;

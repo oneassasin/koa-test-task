@@ -1,11 +1,11 @@
-import * as process from 'process';
+const process = require('process');
 
 const config = {
     DEV: {
         ENV: 'DEV',
         APP_PORT: 3000,
 
-        DB_URI: 'mysql://mysql:mysql@localhost:3306/koa-test?connectionLimit=10',
+        DB_URI: 'mysql://user:password@localhost:3306/koa-test?connectionLimit=10',
     },
     PRODUCTION: {
         ENV: 'PRODUCTION',
@@ -16,4 +16,4 @@ const config = {
     GLOBAL: {},
 };
 
-export default Object.assign(config[process.env.NODE_ENV || 'DEV'], config.GLOBAL);
+module.exports = Object.assign(config[process.env.NODE_ENV || 'DEV'], config.GLOBAL);

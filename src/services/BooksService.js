@@ -1,4 +1,9 @@
-export default class BooksService {
+class BooksService {
+    /**
+     * @type {MySqlService}
+     */
+    mySqlService = null;
+
     constructor({mySqlService}) {
         this.mySqlService = mySqlService;
     }
@@ -6,11 +11,29 @@ export default class BooksService {
     /**
      * @param limit {number}
      * @param offset {number}
+     * @param sortBy {string}
+     * @param sortType {string}
      * @returns {Promise<*[]>}
      */
-    async getBooks(limit = 10, offset = 0) {
-        // TODO: Select all books
-        return Promise.resolve([]);
+    async getBooks(limit = 10,
+                   offset = 0,
+                   sortBy = 'date',
+                   sortType = 'ASC') {
+
+        const connection = await this.mySqlService.getConnection();
+
+        try {
+            return await connection.query(`
+                        SELECT *
+                        FROM books
+                        ORDER BY ? ${connection.escape(sortType)}
+                        LIMIT ?, ?
+                `,
+                [sortBy, sortType, limit, offset],
+            );
+        } catch (err) {
+            throw new Error('Database query error');
+        }
     }
 
     /**
@@ -33,3 +56,5 @@ export default class BooksService {
         return Promise.resolve(bookModel);
     }
 }
+
+module.exports = BooksService;

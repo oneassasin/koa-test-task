@@ -1,15 +1,25 @@
-import config from './config';
-import * as conditional from 'koa-conditional-get';
-import * as etag from 'koa-etag';
-import * as Koa from 'koa';
-import * as debug from 'debug';
-import {createContainer} from 'awilix'
-import {loadControllers, scopePerRequest} from 'awilix-koa'
+require('@babel/register');
+
+const config = require('./config');
+const conditional = require('koa-conditional-get');
+const etag = require('koa-etag');
+const Koa = require('koa');
+const debug = require('debug');
+const {createContainer, Lifetime} = require('awilix');
+const {loadControllers, scopePerRequest} = require('awilix-koa');
+const koaValidator = require('koa-async-validator');
+const bodyParser = require('koa-bodyparser');
 
 const log = debug('test:app');
 
 const app = new Koa();
 const container = createContainer();
+
+app.use(bodyParser());
+app.use(koaValidator());
+
+app.use(conditional());
+app.use(etag());
 
 container.loadModules(
     [
@@ -20,9 +30,6 @@ container.loadModules(
     }
 );
 
-app.use(conditional());
-app.use(etag());
-
 app.use(scopePerRequest(container));
 app.use(loadControllers('routes/*.js', {cwd: __dirname}));
 
@@ -31,4 +38,6 @@ app.on('error', (err, ctx) => {
     ctx.throw(500, 'Internal server error');
 });
 
-app.listen(config.PORT);
+app.listen(config.APP_PORT);
+
+log(`Application was started on port ${config.APP_PORT}`);

@@ -1,7 +1,8 @@
-import {GET, POST, PUT, route} from "awilix-router-core";
+const {GET, POST, PUT, route} = require('awilix-router-core');
+const BookDVO = require('../entities/dvo/book');
 
 @route('/books')
-export default class BooksAPI {
+class BooksAPI {
     /**
      * @type {BooksService}
      */
@@ -14,19 +15,45 @@ export default class BooksAPI {
     @GET()
     async getBooks(ctx) {
         // TODO: Parse and validate all params
-        return await this.booksService.getBooks(ctx.query.limit, ctx.query.offset);
+
+        return await this.booksService.getBooks(
+            ctx.query.limit,
+            ctx.query.offset,
+            ctx.query.sortBy,
+            ctx.query.sortType,
+        );
     }
 
     @POST()
     async createBook(ctx) {
-        // TODO: Validate and sanitize data in body
+        ctx.checkBody(BookDVO);
+        const errors = ctx.validationErrors();
+
+        if (errors) {
+            ctx.body = errors;
+            ctx.status = 400;
+            return;
+        }
+
         return await this.booksService.createBook(ctx.body);
     }
 
     @route('/:id')
     @PUT()
     async updateBook(ctx) {
-        // TODO: Validate and sanitize data in body and route param
+        ctx.checkParams('id').notEmpty().isInt();
+
+        ctx.checkBody(BookDVO);
+        const errors = ctx.validationErrors();
+
+        if (errors) {
+            ctx.body = errors;
+            ctx.status = 400;
+            return;
+        }
+
         return await this.booksService.updateBook(ctx.params.id, ctx.body);
     }
 }
+
+module.exports = BooksAPI;
