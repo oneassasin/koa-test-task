@@ -1,22 +1,9 @@
-module.exports = {
-    title: {
-        notEmpty: true,
-        optional: true,
-    },
-    date: {
-        notEmpty: true,
-        optional: true,
-    },
-    author: {
-        notEmpty: true,
-        optional: true,
-    },
-    description: {
-        notEmpty: true,
-        optional: true,
-    },
-    image: {
-        notEmpty: true,
-        optional: true,
-    },
-};
+const Joi = require('@hapi/joi');
+
+module.exports = Joi.object({
+    title: Joi.string(),
+    date: Joi.string(),
+    author: Joi.string(),
+    description: Joi.string(),
+    image: Joi.string(),
+});

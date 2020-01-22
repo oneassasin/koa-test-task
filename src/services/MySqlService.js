@@ -11,26 +11,43 @@ class MySqlService {
      */
     _pool = null;
 
-    constructor() {
-        this.init().catch(err => {
-            log('Error with mysql', err);
-            process.exit(1);
-        });
-    }
-
     async init() {
-        this._pool = await mysql.createPool(config.DB_URI);
+        if (this._pool) {
+            return;
+        }
+
+        try {
+            this._pool = await mysql.createPool(config.DB_URI);
+        } catch (err) {
+            log('Error with pool init', err);
+            throw new Error('Database connection init error');
+        }
     }
 
     /**
      * @returns {Promise<mysql.connection>}
      */
     async getConnection() {
+        await this.init();
+
         try {
             return await this._pool.getConnection();
         } catch (err) {
-            log('Error with getting connection from pool', err);
-            throw new Error('Database connection init error');
+            log('Database getting connection error', err);
+            throw new Error('Database getting connection error');
+        }
+    }
+
+    /**
+     * @param connection {mysql.connection}
+     * @returns {Promise<void>}
+     */
+    async releaseConnection(connection) {
+        try {
+            await this._pool.releaseConnection(connection);
+        } catch (err) {
+            log('Database release connection error', err);
+            throw new Error('Database release connection error');
         }
     }
 }

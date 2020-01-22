@@ -1,3 +1,7 @@
+const debug = require('debug');
+
+const log = debug('test:BooksService');
+
 class BooksService {
     /**
      * @type {MySqlService}
@@ -22,18 +26,28 @@ class BooksService {
 
         const connection = await this.mySqlService.getConnection();
 
+        let data = null;
+
         try {
-            return await connection.query(`
+            data = await connection.query(`
                         SELECT *
                         FROM books
-                        ORDER BY ? ${connection.escape(sortType)}
-                        LIMIT ?, ?
+                        ORDER BY ? ${sortType}
+                        LIMIT ?
+                        OFFSET ?
                 `,
-                [sortBy, sortType, limit, offset],
+                [sortBy, limit, offset],
             );
         } catch (err) {
+            log('Error with get books', err);
             throw new Error('Database query error');
+        } finally {
+            this.mySqlService.releaseConnection(connection).catch(err => {
+                log('Error with release connection', err);
+            });
         }
+
+        return data;
     }
 
     /**

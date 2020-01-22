@@ -1,5 +1,10 @@
+import {before} from "awilix-router-core";
+
 const {GET, POST, PUT, route} = require('awilix-router-core');
 const BookDVO = require('../entities/dvo/book');
+const validate = require('koa-joi-validate');
+const Joi = require('@hapi/joi');
+
 
 @route('/books')
 class BooksAPI {
@@ -13,45 +18,45 @@ class BooksAPI {
     }
 
     @GET()
+    @before([validate({
+        query: {
+            limit: Joi.number().integer().min(1).max(100).optional(),
+            offset: Joi.number().integer().min(1).max(100).optional(),
+            sortBy: Joi.string().valid('title', 'date', 'author', 'description', 'image').optional(),
+            sortType: Joi.string().valid('ASC', 'DESC').optional(),
+        }
+    })])
     async getBooks(ctx) {
-        // TODO: Parse and validate all params
-
-        return await this.booksService.getBooks(
-            ctx.query.limit,
-            ctx.query.offset,
-            ctx.query.sortBy,
-            ctx.query.sortType,
-        );
+        try {
+            ctx.body = await this.booksService.getBooks(
+                ctx.query.limit,
+                ctx.query.offset,
+                ctx.query.sortBy,
+                ctx.query.sortType,
+            );
+        } catch (err) {
+            ctx.body = err;
+            ctx.status = 500;
+        }
     }
 
     @POST()
+    @before([validate({
+        body: BookDVO,
+    })])
     async createBook(ctx) {
-        ctx.checkBody(BookDVO);
-        const errors = ctx.validationErrors();
-
-        if (errors) {
-            ctx.body = errors;
-            ctx.status = 400;
-            return;
-        }
-
         return await this.booksService.createBook(ctx.body);
     }
 
-    @route('/:id')
     @PUT()
+    @route('/:id')
+    @before([validate({
+        params: {
+            id: Joi.number().integer().required()
+        },
+        body: BookDVO,
+    })])
     async updateBook(ctx) {
-        ctx.checkParams('id').notEmpty().isInt();
-
-        ctx.checkBody(BookDVO);
-        const errors = ctx.validationErrors();
-
-        if (errors) {
-            ctx.body = errors;
-            ctx.status = 400;
-            return;
-        }
-
         return await this.booksService.updateBook(ctx.params.id, ctx.body);
     }
 }
